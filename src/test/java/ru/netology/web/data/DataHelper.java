@@ -2,6 +2,9 @@ package ru.netology.web.data;
 
 import lombok.Value;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class DataHelper {
     private DataHelper() {}
 
@@ -31,14 +34,25 @@ public class DataHelper {
     }
 
     public static CardId getCardId1() {
-        return new CardId("0001","5559 0000 0000 0001");
+        return new CardId("**** **** **** 0001","5559 0000 0000 0001");
     }
 
     public static CardId getCardId2() {
-        return new CardId("0002","5559 0000 0000 0002");
+        return new CardId("**** **** **** 0002","5559 0000 0000 0002");
     }
 
     public static CardId getCardIdNotRight() {
-        return new CardId("9999","5559 0000 0000 9999");
+        return new CardId("**** **** **** 9999","5559 0000 0000 9999");
+    }
+
+    //возвращает псевдослучайное целое число рублей, которое можно списать с карты, на которой сумма баланса равна cardBalance (от 1 до cardBalance)
+    public static int randomPossibleAmountForTransfer(int cardBalance) {
+        return (int) (Math.random() * (cardBalance + 1));
+    }
+
+    //выбирает случайную карту из коллекции карт
+    public static DataHelper.CardId getRandomCard(ArrayList<CardId> cards) {
+        Collections.shuffle(cards);
+        return cards.get(0);
     }
 }

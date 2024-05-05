@@ -2,12 +2,7 @@ package ru.netology.web.page;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import lombok.Value;
 import lombok.val;
-import ru.netology.web.data.DataHelper;
-
-import java.util.ArrayList;
-import java.util.Collections;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -27,16 +22,9 @@ public class DashboardPage {
         heading2.shouldHave(text("Ваши карты"));
     }
 
-    public int getCardBalance(String fourSymbolsCardNumber) {
-        String text;
-        for (SelenideElement item : listItem) {
-            text = item.text();
-            String shortCardNumber = text.substring(text.indexOf(cardNumberStart) + 15, text.indexOf(balanceStart));
-            if (shortCardNumber.equals(fourSymbolsCardNumber)) {
-                return extractBalance(text);
-            }
-        }
-        return 0;
+    public int getCardBalance(String maskCardNumber) {
+        var item = listItem.findBy(text(maskCardNumber));
+        return extractBalance(item.text());
     }
 
     private int extractBalance(String text) {
@@ -47,28 +35,10 @@ public class DashboardPage {
     }
 
     //нажимает кнопку "Пополнить" для карты, которую решили пополнять
-    public static DashboardPageForTransfer clickCardTransferButton(DataHelper.CardId cardOn) {
-        String text;
-        for (SelenideElement item : listItem) {
-            text = item.text();
-            String shortCardNumber = text.substring(text.indexOf(cardNumberStart) + 15, text.indexOf(balanceStart));
-            if (shortCardNumber.equals(cardOn.getShortCardId())) {
-                item.$("button").click();
-                return new DashboardPageForTransfer();
-            }
-        }
-        return null;
-    }
-
-    //возвращает псевдослучайное целое число рублей, которое можно списать с карты, на которой сумма баланса равна cardBalance (от 1 до cardBalance)
-    public int randomPossibleAmountForTransfer(int cardBalance) {
-        return (int) (Math.random() * (cardBalance + 1));
-    }
-
-    //выбирает случайную карту из коллекции карт
-    public DataHelper.CardId getRandomCard(ArrayList<DataHelper.CardId> cards) {
-        Collections.shuffle(cards);
-        return cards.get(0);
+    public static DashboardPageForTransfer clickCardTransferButton(String maskCardNumber) {
+        var item = listItem.findBy(text(maskCardNumber));
+        item.$("button").click();
+        return new DashboardPageForTransfer();
     }
 
 }

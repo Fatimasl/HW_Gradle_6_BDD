@@ -1,6 +1,5 @@
 package ru.netology.web.test;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MoneyTransferTest {
     DashboardPage dashboardPage;
@@ -22,7 +20,7 @@ class MoneyTransferTest {
 
     @BeforeEach
     void setup() {
-        open ("http://localhost:9999");
+        open("http://localhost:9999");
         LoginPage loginPage = new LoginPage();
         DataHelper.AuthInfo authInfo = DataHelper.getAuthInfo();
 
@@ -40,11 +38,11 @@ class MoneyTransferTest {
         //случайно определим карту для пополнения
         //это для реализации условия задачи "Нужно, чтобы вы через Page Object's добавили доменный метод выбора карты для пополнения",
         // т.е. случайно выбрать одну карту из двух. Я поняла это так.
-        сardTransferOn = dashboardPage.getRandomCard(cards);
+        сardTransferOn = DataHelper.getRandomCard(cards);
         //удалим карту для пополнения из коллекции карт пользователя
         cards.remove(сardTransferOn);
         //случайно определим карту, с которой будем пополнять
-        сardTransferOff = dashboardPage.getRandomCard(cards);
+        сardTransferOff = DataHelper.getRandomCard(cards);
     }
 
     @Test
@@ -55,9 +53,9 @@ class MoneyTransferTest {
         var startBalanceCardTransferOff = dashboardPage.getCardBalance(сardTransferOff.getShortCardId());
 
         //получим сумму, которую можно перевести
-        var amountForTransfer = dashboardPage.randomPossibleAmountForTransfer(startBalanceCardTransferOff);
+        var amountForTransfer = DataHelper.randomPossibleAmountForTransfer(startBalanceCardTransferOff);
         //нажмем "Пополнить" около карты, которую решили пополнить
-        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn);
+        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn.getShortCardId());
         //совершим перевод
         var dashboardPageAfterTransfer = dashboardPageForTransfer.doValidTransfer(String.valueOf(amountForTransfer), сardTransferOff.getCardId());
 
@@ -70,10 +68,10 @@ class MoneyTransferTest {
     }
 
     @Test
-    @DisplayName("MustFailedTransferMoneyByEmptyAmount")
-    void MustFailedTransferMoneyByEmptyAmount() {
+    @DisplayName("mustFailedTransferMoneyByEmptyAmount")
+    void mustFailedTransferMoneyByEmptyAmount() {
         //нажмем "Пополнить" около карты, которую решили пополнить
-        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn);
+        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn.getShortCardId());
         //попробуем совершить перевод с той же карты, которую выбрали для пополнения
         dashboardPageForTransfer.doTransfer("", сardTransferOff.getCardId());
 
@@ -81,14 +79,14 @@ class MoneyTransferTest {
     }
 
     @Test
-    @DisplayName("MustFailedTransferMoneyByEmptyCardNumber")
-    void MustFailedTransferMoneyByEmptyCardNumber() {
+    @DisplayName("mustFailedTransferMoneyByEmptyCardNumber")
+    void mustFailedTransferMoneyByEmptyCardNumber() {
         var startBalanceCardTransferOff = dashboardPage.getCardBalance(сardTransferOff.getShortCardId());
 
         //получим сумму, которую можно перевести
-        var amountForTransfer = dashboardPage.randomPossibleAmountForTransfer(startBalanceCardTransferOff);
+        var amountForTransfer = DataHelper.randomPossibleAmountForTransfer(startBalanceCardTransferOff);
         //нажмем "Пополнить" около карты, которую решили пополнить
-        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn);
+        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn.getShortCardId());
         //попробуем совершить перевод с той же карты, которую выбрали для пополнения
         dashboardPageForTransfer.doTransfer(String.valueOf(amountForTransfer), "");
 
@@ -96,14 +94,14 @@ class MoneyTransferTest {
     }
 
     @Test
-    @DisplayName("MustFailedTransferMoneyBetweenOwnCardAndNotRightCard")
-    void MustFailedTransferMoneyBetweenOwnCardAndNotRightCard() {
+    @DisplayName("mustFailedTransferMoneyBetweenOwnCardAndNotRightCard")
+    void mustFailedTransferMoneyBetweenOwnCardAndNotRightCard() {
 
         сardTransferOff = DataHelper.getCardIdNotRight();
         //сумма перевода
         var amountForTransfer = 1;
         //нажмем "Пополнить" около карты, которую решили пополнить
-        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn);
+        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn.getShortCardId());
         //попробуем совершить перевод с той же карты, которую выбрали для пополнения
         dashboardPageForTransfer.doTransfer(String.valueOf(amountForTransfer), сardTransferOff.getCardId());
 
@@ -111,15 +109,15 @@ class MoneyTransferTest {
     }
 
     @Test
-    @DisplayName("MustFailedTransferMoneyBetweenTheSameOwnCard")
-    void MustFailedTransferMoneyBetweenTheSameOwnCard() {
+    @DisplayName("mustFailedTransferMoneyBetweenTheSameOwnCard")
+    void mustFailedTransferMoneyBetweenTheSameOwnCard() {
         //запишем начальный баланс карты для пополнения
         var startBalanceCardTransferOn = dashboardPage.getCardBalance(сardTransferOn.getShortCardId());
 
         //получим сумму, которую можно перевести с карты, которую хотим пополнить
-        var amountForTransfer = dashboardPage.randomPossibleAmountForTransfer(startBalanceCardTransferOn);
+        var amountForTransfer = DataHelper.randomPossibleAmountForTransfer(startBalanceCardTransferOn);
         //нажмем "Пополнить" около карты, которую решили пополнить
-        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn);
+        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn.getShortCardId());
         //попробуем совершить перевод с той же карты, которую выбрали для пополнения
         dashboardPageForTransfer.doTransfer(String.valueOf(amountForTransfer), сardTransferOn.getCardId());
 
@@ -133,9 +131,9 @@ class MoneyTransferTest {
         var startBalanceCardTransferOff = dashboardPage.getCardBalance(сardTransferOff.getShortCardId());
 
         //получим сумму, которую НЕЛЬЗЯ перевести
-        var amountForTransfer = startBalanceCardTransferOff + dashboardPage.randomPossibleAmountForTransfer(startBalanceCardTransferOff);
+        var amountForTransfer = startBalanceCardTransferOff + DataHelper.randomPossibleAmountForTransfer(startBalanceCardTransferOff);
         //нажмем "Пополнить" около карты, которую решили пополнить
-        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn);
+        var dashboardPageForTransfer = dashboardPage.clickCardTransferButton(сardTransferOn.getShortCardId());
         //попробуем совершить перевод
         dashboardPageForTransfer.doTransfer(String.valueOf(amountForTransfer), сardTransferOff.getCardId());
 
